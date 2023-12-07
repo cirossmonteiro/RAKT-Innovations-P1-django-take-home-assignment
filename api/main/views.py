@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from django.db.models import F
 
 from main.models import FoodTruck
 from main.serializers import FoodTruckSerializer
@@ -35,6 +36,9 @@ class FoodTruckViewSet(viewsets.ModelViewSet):
                 y = float(y)
                 # y-count*DY < y' < y+count*DY
                 queryset = queryset.filter(y__gte=y-count*DY).filter(y__lte=y+count*DY)
+            
+            if x is not None and y is not None:
+                queryset = queryset.annotate(distance=((F("x")-x)**2.+(F("y")-y)**2.)**.5).filter(distance__lte=count*(DX*DY)**.5)
             
             if latitude is not None:
                 latitude = float(latitude)
